@@ -1,0 +1,52 @@
+---
+- name: Deploying LAMP stack
+  hosts: answorker2@172.31.88.205
+  remote_user: answorker2
+  become: yes
+
+  tasks:
+     - name: Installing Apache server
+       yum: name=httpd state=latest
+
+     - name: Start apapche server service
+       service: name=httpd state=started 
+
+     - name: Installing MariaDB server
+       yum:
+         name:
+          - mariadb-server
+          - mariadb-devel
+          - MySQL-python
+            #- python2.7-PyMySQL
+            #- mariadb-connector-odbc
+            #- python3-PyMySQL
+          - php
+         state: latest
+
+     - name: start MariaDB server service
+       service: name=mariadb state=started
+
+     - name: Update Maridb Server root password
+       mysql_user:
+        name: root
+        password: mysql
+        host: localhost
+        check_implicit_admin: yes
+        using password: YES
+        password: mysql
+        host: localhost
+        login_user: root
+        check_implicit_admin: yes
+        priv: "*.*:ALL,GRANT"
+     - name: Create a new database call Inventory
+       mysql_db: name=inventory state=present login_user=root login_password=mysql
+     - name: copy SQL file
+       copy: src=/home/ansadmin/ansible_playbooks/servers.sql  dest=/tmp/servers.sql
+     - name: create table called info with Data 
+       shell: mysql -u root -p mysql inventory < /tmp/servers.sql
+     - name: copy PHP files
+       copy: src=/home/ansadmin/ansible_playbooks/connection.php dest=/var/www/html
+     - name: copy Index.php file
+       copy: src=/home/ansadmin/ansible_playbooks/index.php dest=/var/www/html
+     - name: Restart web service
+       service: name=httpd state=restarted
