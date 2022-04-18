@@ -1,0 +1,57 @@
+---
+- hosts: ec2-user@172.31.29.11
+  become: yes
+
+  tasks:
+    - name : installing wget
+      yum:
+        name: wget
+        state: installed
+
+    - name: installing epel
+      command: amazon-linux-extras install epel -y
+  
+
+    - name: Installing Apache, MySQL and PHP
+      yum:
+        name:
+          - https://dev.mysql.com/get/mysql80-community-release-el7-5.noarch.rpm
+          - httpd
+          - mysql-community-server
+          - php 
+          - php-mysql
+        state: installed
+
+    - name: Enabling and Starting the service httpd
+      service:
+        name: httpd
+        enabled: yes
+        state: started
+
+    - name: Enabling and Starting the service MySQL
+      service:
+        name: mysqld
+        enabled: yes
+        state: started
+
+    - name: Copying the php file
+      copy:
+        src: /home/ansadmin/index.php
+        dest: /var/www/html/index.php
+        force: yes
+
+
+    - name: Copying the php file
+      copy:
+        src: /home/ansadmin/playbooks/phpinfo.php
+        dest: /var/www/html/
+        force: yes
+    
+    - name: get root password
+      shell: "grep 'A temporary password is generated for root@localhost' /var/log/mysqld.log | awk -F ' ' '{print $(NF)}'"
+      register: root_password
+
+    
+
+  
+
