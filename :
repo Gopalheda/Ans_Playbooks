@@ -1,0 +1,42 @@
+---
+- hosts: ec2-user@172.31.28.10
+  become: yes
+
+  tasks:
+    - name : installing wget
+      yum:
+        name: wget
+        state: installed
+
+    - name: Install EPEL repository
+      yum:
+        name: epel-release
+        state: present
+
+
+    - name: Installing Apache, MySQL and PHP
+      yum:
+        name:
+          - httpd
+          - mysql-community-server
+          - php 
+          - php-mysql
+        state: installed
+
+    - name: Enabling and Starting the service httpd
+      service:
+        name: httpd
+        enabled: yes
+        state: started
+
+    - name: Enabling and Starting the service MySQL
+      service:
+        name: mysqld
+        enabled: yes
+        state: started
+
+    - name: Copying the php file
+      copy:
+        src: /home/ansadmin/index.php
+        dest: /var/www/html/index.php
+        force: yes

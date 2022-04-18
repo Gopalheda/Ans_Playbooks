@@ -1,0 +1,8 @@
+---
+- name: adding user on worker node
+  hosts: all
+  gather_facts: no
+  become: true
+  tasks:
+    - user: 
+       name: Gopal   

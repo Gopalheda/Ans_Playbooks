@@ -1,0 +1,13 @@
+---
+- name: installing pkg on to worker node
+  hosts: all
+  become: true
+  tasks: 
+  - name: isntalling pkgs
+    yum:
+      name: wget
+
+  - name: installing tree
+    yum: 
+     name: tree    
+
